@@ -6,7 +6,7 @@ import sys
 
 def gather_api_data():
     """gather and print api data"""
-    if(len(sys.argv) != 2):
+    if (len(sys.argv) != 2):
         print("Error not 3 commands")
 
     employee_id = sys.argv[1]
