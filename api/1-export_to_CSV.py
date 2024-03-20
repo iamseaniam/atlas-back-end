@@ -1,4 +1,4 @@
-#!/usr/bin/python3#!/usr/bin/python3
+#!/usr/bin/python3
 """extend your script to export data in CSV"""
 import csv
 import requests

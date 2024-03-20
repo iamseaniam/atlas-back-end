@@ -1,35 +1,37 @@
 #!/usr/bin/python3
-
-"""documentation"""
-
+""" returns information about to-do list progress """
 import requests
 import sys
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        sys.exit(1)
+
+def gather_api_data():
+    """gather and print api data"""
+    if(len(sys.argv) != 2):
+        print("Error not 3 commands")
 
     employee_id = sys.argv[1]
 
-    URL = 'https://jsonplaceholder.typicode.com/'
-    user_endpoint = f'{URL}users/{employee_id}'
-    todos_endpoint = f'{URL}todos'
+    user_data = requests.get('https://jsonplaceholder.typicode.com/users/{}'
+                             .format(employee_id)).json()
+    todo_data = requests.get('https://jsonplaceholder.typicode.com/todos',
+                             params={"userId": employee_id}).json()
+    EMPLOYEE_NAME = user_data.get("name")
+    NUMBER_OF_DONE_TASKS = 0
+    TOTAL_NUMBER_OF_TASKS = 0
 
-    user_response = requests.get(user_endpoint)
-    user_data = user_response.json()
+    completed_tasks = []
 
-    todos_response = requests.get(todos_endpoint)
-    todos_data = todos_response.json()
+    for item in todo_data:
+        TOTAL_NUMBER_OF_TASKS += 1
+        if item.get("completed"):
+            NUMBER_OF_DONE_TASKS += 1
+            completed_tasks.append(item.get("title"))
 
-    employee_todos = [
-        todo for todo in todos_data if todo['userId'] == int(employee_id)
-    ]
+    print('Employee {} is done with tasks({}/{}):'
+          .format(EMPLOYEE_NAME, NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
+    for task in completed_tasks:
+        print("\t {}".format(task))
 
-    done_tasks = sum(1 for todo in employee_todos if todo['completed'])
-    total_tasks = len(employee_todos)
 
-    print(f"Employee {user_data['name']} is done with tasks("
-          f"{done_tasks}/{total_tasks}):")
-    for todo in employee_todos:
-        if todo['completed']:
-            print(f"\t {todo['title']}")
+if __name__ == "__main__":
+    gather_api_data()
