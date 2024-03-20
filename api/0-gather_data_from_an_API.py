@@ -1,37 +1,33 @@
 #!/usr/bin/python3
-""" returns information about to-do list progress """
-import requests
-import sys
-
-
-def gather_api_data():
-    """gather and print api data"""
-    if (len(sys.argv) != 2):
-        print("Error not 3 commands")
-
-    employee_id = sys.argv[1]
-
-    user_data = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                             .format(employee_id)).json()
-    todo_data = requests.get('https://jsonplaceholder.typicode.com/todos',
-                             params={"userId": employee_id}).json()
-    EMPLOYEE_NAME = user_data.get("name")
-    NUMBER_OF_DONE_TASKS = 0
-    TOTAL_NUMBER_OF_TASKS = 0
-
-    completed_tasks = []
-
-    for item in todo_data:
-        TOTAL_NUMBER_OF_TASKS += 1
-        if item.get("completed"):
-            NUMBER_OF_DONE_TASKS += 1
-            completed_tasks.append(item.get("title"))
-
-    print('Employee {} is done with tasks({}/{}):'
-          .format(EMPLOYEE_NAME, NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS))
-    for task in completed_tasks:
-        print("\t {}".format(task))
+"""
+Uses API to return info on given employee's progress
+"""
 
 
 if __name__ == "__main__":
-    gather_api_data()
+    import requests
+    import sys
+
+    def employee_to_do_progress(employee_id):
+        """
+        method for getting data from api
+        """
+        api_url = 'https://jsonplaceholder.typicode.com/'
+
+        employee_request = requests.get(f'{api_url}users/{employee_id}')
+        employee_data = employee_request.json()
+        employee_name = employee_data.get('name')
+
+        todo_request = requests.get(f'{api_url}todos?userId={employee_id}')
+        todo_data = todo_request.json()
+        total_tasks = len(todo_data)
+        completed_tasks = sum(task['completed'] for task in todo_data)
+
+        print("Employee {} is done with tasks({}/{}):"
+              .format(employee_name, completed_tasks, total_tasks))
+        for task in todo_data:
+            if task['completed']:
+                print(f"\t {task['title']}")
+
+    employee_id = sys.argv[1]
+    employee_to_do_progress(employee_id)
